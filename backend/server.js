@@ -11,47 +11,34 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* ================================
-   FIX __dirname FOR ES MODULES
-================================ */
+/* Fix __dirname */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ================================
-   MIDDLEWARE
-================================ */
-// CORS is NOT needed for same-origin fullstack deploy,
-// but keeping this open causes no issues
+/* Middleware */
 app.use(cors());
-
 app.use(express.json());
 
-/* ================================
-   API ROUTES
-================================ */
+/* API routes */
 app.use("/api/products", productRoutes);
 
-/* ================================
-   SERVE FRONTEND IN PRODUCTION
-================================ */
+/* Serve frontend */
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/dist");
 
   console.log("Serving frontend from:", frontendPath);
 
-  // Serve static assets
   app.use(express.static(frontendPath));
 
-  // React Router support
-  app.get("*", (req, res) => {
+  // ✅ FIXED: catch-all handler (Express v5 safe)
+  app.use((req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
 
-/* ================================
-   START SERVER
-================================ */
+/* Start server */
 app.listen(PORT, () => {
   connectDB();
   console.log(`Server running on port ${PORT}`);
 });
+
