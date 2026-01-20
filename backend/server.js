@@ -20,13 +20,9 @@ const __dirname = path.dirname(__filename);
 /* ================================
    MIDDLEWARE
 ================================ */
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5000"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  }),
-);
+// CORS is NOT needed for same-origin fullstack deploy,
+// but keeping this open causes no issues
+app.use(cors());
 
 app.use(express.json());
 
@@ -45,6 +41,11 @@ if (process.env.NODE_ENV === "production") {
 
   // Serve static assets
   app.use(express.static(frontendPath));
+
+  // React Router support
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
 }
 
 /* ================================
@@ -52,5 +53,5 @@ if (process.env.NODE_ENV === "production") {
 ================================ */
 app.listen(PORT, () => {
   connectDB();
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
